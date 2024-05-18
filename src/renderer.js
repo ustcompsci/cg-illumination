@@ -222,18 +222,18 @@ class Renderer {
         ground_mesh.material = materials['ground_' + this.shading_alg];
 
         // Create other models
-        let pyramid = createPyramid('pyramid', scene);
-        pyramid.position = new Vector3(2.0, 1.0, -2.0);
-        pyramid.scaling = new Vector3(1.5, 2.5, 1.5);
-        pyramid.metadata = {
+        let icosahedron = createIcosahedron('icosahedron', scene);
+        icosahedron.position = new Vector3(2.0, 1.0, -2.0);
+        icosahedron.scaling = new Vector3(1.5, 1.5, 1.5);
+        icosahedron.metadata = {
             mat_color: new Color3(Math.random(), Math.random(), Math.random()),
             mat_texture: noiseTexture,
             mat_specular: new Color3(0.8, 0.8, 0.8),
             mat_shininess: 16,
             texture_scale: new Vector2(1.0, 1.0)
         };
-        pyramid.material = materials['illum_' + this.shading_alg];
-        current_scene.models.push(pyramid);
+        icosahedron.material = materials['illum_' + this.shading_alg];
+        current_scene.models.push(icosahedron);
 
         let cylinder = CreateCylinder('cylinder', { height: 2, diameterTop: 1, diameterBottom: 1, tessellation: 32 }, scene);
         cylinder.position = new Vector3(-2.0, 1.0, -2.0);
@@ -261,7 +261,7 @@ class Renderer {
         current_scene.models.push(sphere);
 
         // Animation variables
-        let pyramidRotationSpeed = 0.01;
+        let icosahedronRotationSpeed = 0.01;
         let cylinderScalingSpeed = 0.005;
         let spherePositionAmplitude = 1.0;
         let spherePositionSpeed = 0.02;
@@ -270,7 +270,7 @@ class Renderer {
         scene.onBeforeRenderObservable.add(() => {
             // update models and lights here (if needed)
             // ...
-            pyramid.rotation.y += pyramidRotationSpeed;
+            icosahedron.rotation.y += icosahedronRotationSpeed;
 
             cylinder.scaling.y += cylinderScalingSpeed;
             if (cylinder.scaling.y > 2 || cylinder.scaling.y < 1) {
@@ -512,119 +512,76 @@ class Renderer {
     }
 }
 
-function createPyramid(name, scene) {
-    let pyramid = new Mesh(name, scene);
-    let vertex_positions = [
-        // Front face
-        0, 1, 0,
-        -0.5, 0, 0.5,
-        0, 0, 0.5,
-        0.5, 0, 0.5,
-        // Right face
-        0, 1, 0,
-        0.5, 0, 0.5,
-        0.5, 0, 0,
-        0.5, 0, -0.5,
-        // Back face
-        0, 1, 0,
-        0.5, 0, -0.5,
-        0, 0, -0.5,
-        -0.5, 0, -0.5,
-        // Left face
-        0, 1, 0,
-        -0.5, 0, -0.5,
-        -0.5, 0, 0,
-        -0.5, 0, 0.5,
-        // Bottom face
-        0, 0, 0,
-        -0.5, 0, 0.5,
-        0.5, 0, 0.5,
-        0.5, 0, -0.5,
-        -0.5, 0, -0.5
-    ];
-    let vertex_normals = [
-        // Front face normals
-        0, 0.4472, 0.8944,
-        0, 0.4472, 0.8944,
-        0, 0.4472, 0.8944,
-        0, 0.4472, 0.8944,
-        // Right face normals
-        0.8944, 0.4472, 0,
-        0.8944, 0.4472, 0,
-        0.4472, 0.8944, 0,
-        0.8944, 0.4472, 0,
-        // Back face normals
-        0, 0.4472, -0.8944,
-        0, 0.4472, -0.8944,
-        0.4472, 0.8944, 0,
-        -0.8944, 0.4472, 0,
-        // Left face normals
-        -0.8944, 0.4472, 0,
-        -0.8944, 0.4472, 0,
-        -0.4472, 0.8944, 0,
-        -0.8944, 0.4472, 0,
-        // Bottom face normals
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0
-    ];
-    let vertex_texcoords = [
-        // Front face
-        0.5, 1,
-        0, 0,
-        0.5, 0.0,
-        1, 0,
-        // Right face
-        0.5, 1,
-        0, 0,
-        0.5, 0.0,
-        1, 0,
-        // Back face
-        0.5, 1,
-        0, 0,
-        0.5, 0.0,
-        1, 0,
-        // Left face
-        0.5, 1,
-        0, 0,
-        0.5, 0.0,
-        1, 0,
-        // Bottom face
-        0.5, 0,
-        0, 0,
-        1, 0,
-        1, 1,
-        0, 1
-    ];
-    let triangle_indices = [
-        // Front face
-        0, 1, 2,
-        0, 2, 3,
-        // Right face
-        4, 5, 6,
-        4, 6, 7,
-        // Back face
-        8, 9, 10,
-        8, 10, 11,
-        // Left face
-        12, 13, 14,
-        12, 14, 15,
-        // Bottom face
-        16, 17, 18,
-        16, 18, 19,
-        16, 19, 20
+function createIcosahedron(name, scene) {
+    const t = (1 + Math.sqrt(5)) / 2;
+    const positions = [
+        -1, t, 0,
+        1, t, 0,
+        -1, -t, 0,
+        1, -t, 0,
+        0, -1, t,
+        0, 1, t,
+        0, -1, -t,
+        0, 1, -t,
+        t, 0, -1,
+        t, 0, 1,
+        -t, 0, -1,
+        -t, 0, 1,
     ];
 
-    let vertex_data = new VertexData();
-    vertex_data.positions = vertex_positions;
-    vertex_data.normals = vertex_normals;
-    vertex_data.uvs = vertex_texcoords;
-    vertex_data.indices = triangle_indices;
-    vertex_data.applyToMesh(pyramid);
+    const indices = [
+        0, 11, 5,
+        0, 5, 1,
+        0, 1, 7,
+        0, 7, 10,
+        0, 10, 11,
+        1, 5, 9,
+        5, 11, 4,
+        11, 10, 2,
+        10, 7, 6,
+        7, 1, 8,
+        3, 9, 4,
+        3, 4, 2,
+        3, 2, 6,
+        3, 6, 8,
+        3, 8, 9,
+        4, 9, 5,
+        2, 4, 11,
+        6, 2, 10,
+        8, 6, 7,
+        9, 8, 1
+    ];
 
-    return pyramid;
+    const normals = [];
+    for (let i = 0; i < indices.length; i += 3) {
+        const p0 = new Vector3(positions[indices[i] * 3], positions[indices[i] * 3 + 1], positions[indices[i] * 3 + 2]);
+        const p1 = new Vector3(positions[indices[i + 1] * 3], positions[indices[i + 1] * 3 + 1], positions[indices[i + 1] * 3 + 2]);
+        const p2 = new Vector3(positions[indices[i + 2] * 3], positions[indices[i + 2] * 3 + 1], positions[indices[i + 2] * 3 + 2]);
+
+        const normal = Vector3.Cross(p1.subtract(p0), p2.subtract(p0)).normalize();
+
+        for (let j = 0; j < 3; j++) {
+            normals.push(normal.x, normal.y, normal.z);
+        }
+    }
+
+    const uvs = [];
+    for (let i = 0; i < positions.length; i += 3) {
+        const x = positions[i];
+        const y = positions[i + 1];
+        const z = positions[i + 2];
+        uvs.push((Math.atan2(x, z) / (2 * Math.PI)) + 0.5, (y / 2) + 0.5);
+    }
+
+    const icosahedron = new Mesh(name, scene);
+    const vertexData = new VertexData();
+    vertexData.positions = positions;
+    vertexData.indices = indices;
+    vertexData.normals = normals;
+    vertexData.uvs = uvs;
+    vertexData.applyToMesh(icosahedron);
+
+    return icosahedron;
 }
 
 export { Renderer };
